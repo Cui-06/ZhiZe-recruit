@@ -1,0 +1,15 @@
+  
+Build target 'Hardware_C2'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?LED_TOGGLE?LED
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SEG_SETALL?SEG
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?SEG_DISPLAY?SEG
+Program Size: data=41.1 xdata=0 code=1871
+creating hex file from ".\Objects\Hardware_C2"...
+".\Objects\Hardware_C2" - 0 Error(s), 3 Warning(s).
+Build Time Elapsed:  00:00:00
+  
+Batch-Build summary: 1 succeeded, 0 failed, 0 skipped - Time Elapsed: 00:00:00
