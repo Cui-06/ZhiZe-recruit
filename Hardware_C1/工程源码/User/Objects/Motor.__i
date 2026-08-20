@@ -1,1 +1,0 @@
-"..\Driver\Motor.c" OPTIMIZE (8,SPEED) BROWSE INCDIR(..\Driver) DEBUG OBJECTEXTEND PRINT(.\Listings\Motor.lst) TABS (2) OBJECT(.\Objects\Motor.obj)

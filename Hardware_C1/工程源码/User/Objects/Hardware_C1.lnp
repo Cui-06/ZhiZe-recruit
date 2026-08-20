@@ -1,8 +1,0 @@
-".\Objects\main.obj",
-".\Objects\Beep.obj",
-".\Objects\Key.obj",
-".\Objects\Led.obj",
-".\Objects\Motor.obj",
-".\Objects\Seg.obj" 
-TO ".\Objects\Hardware_C1" 
-PRINT(".\Listings\Hardware_C1.m51") RAMSIZE(256) 
