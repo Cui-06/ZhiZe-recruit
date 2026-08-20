@@ -1,0 +1,81 @@
+C51 COMPILER V9.60.7.0   BEEP                                                              08/15/2026 10:24:49 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE BEEP
+OBJECT MODULE PLACED IN .\Objects\Beep.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.exe ..\Driver\Beep.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver) DEBUG OBJECT
+                    -EXTEND PRINT(.\Listings\Beep.lst) TABS(2) OBJECT(.\Objects\Beep.obj)
+
+line level    source
+
+   1          #include "reg52.h"
+   2          #include "Beep.h"
+   3          
+   4          sbit BEEP = P2^5;
+   5          
+   6          static volatile unsigned char Beep_Enable = 0;
+   7          static volatile unsigned char Beep_Count = 0;
+   8          static volatile unsigned int Beep_ToneTick = 0;
+   9          static volatile unsigned char Beep_TonePhase = 0;
+  10          
+  11          void Beep_Init(void)   //初始化蜂鸣器，使其处于关闭状态
+  12          {
+  13   1          BEEP = 0;
+  14   1          Beep_Enable = 0;
+  15   1          Beep_Count = 0;
+  16   1          Beep_ToneTick = 0;
+  17   1          Beep_TonePhase = 0;
+  18   1      }
+  19          
+  20          void Beep_SetEnable(unsigned char enable)   //开启或关闭蜂鸣器
+  21          {
+  22   1          Beep_Enable = enable ? 1 : 0;
+  23   1          if (Beep_Enable == 0)
+  24   1          {
+  25   2              BEEP = 0;
+  26   2              Beep_Count = 0;
+  27   2              Beep_ToneTick = 0;
+  28   2              Beep_TonePhase = 0;
+  29   2          }
+  30   1      }
+  31          
+  32          void Beep_Tick(void)   //通过定时翻转蜂鸣器电平产生方波声音。
+  33          {
+  34   1          if (Beep_Enable == 0)
+  35   1          {
+  36   2              BEEP = 0;
+  37   2              return;
+  38   2          }
+  39   1      
+  40   1          /* 每 250 ms 交替切换两种频率，形成“滴露滴露”提示音。 */
+  41   1          Beep_ToneTick++;
+  42   1          if (Beep_ToneTick >= 2500)
+  43   1          {
+  44   2              Beep_ToneTick = 0;
+  45   2              Beep_TonePhase = !Beep_TonePhase;
+  46   2              Beep_Count = 0;
+  47   2          }
+  48   1      
+  49   1          Beep_Count++;
+  50   1          if (Beep_Count >= (Beep_TonePhase ? 7 : 4))
+  51   1          {
+  52   2              Beep_Count = 0;
+  53   2              BEEP = !BEEP;
+  54   2          }
+C51 COMPILER V9.60.7.0   BEEP                                                              08/15/2026 10:24:49 PAGE 2   
+
+  55   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    110    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      5    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
