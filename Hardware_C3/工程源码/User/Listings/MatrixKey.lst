@@ -1,0 +1,214 @@
+C51 COMPILER V9.60.7.0   MATRIXKEY                                                         08/15/2026 23:55:01 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MATRIXKEY
+OBJECT MODULE PLACED IN .\Objects\MatrixKey.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE ..\Driver\MatrixKey.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver) DEBUG O
+                    -BJECTEXTEND PRINT(.\Listings\MatrixKey.lst) TABS(2) OBJECT(.\Objects\MatrixKey.obj)
+
+line level    source
+
+   1          #include "reg52.h"
+   2          #include "MatrixKey.h"
+   3          
+   4          #define KEY_MATRIX_PORT P1
+   5          
+   6          static void delay_10us(unsigned int ten_us)
+   7          {
+   8   1          while (ten_us--);
+   9   1      }
+  10          
+  11          static unsigned char MatrixKey_ScanRaw(void)  //逐列扫描矩阵键盘，并返回原始的 S1~S16 键�
+             -�
+  12          {
+  13   1          KEY_MATRIX_PORT = 0xf7;
+  14   1          switch (KEY_MATRIX_PORT)
+  15   1          {
+  16   2              case 0x77: return 1;
+  17   2              case 0xb7: return 5;
+  18   2              case 0xd7: return 9;
+  19   2              case 0xe7: return 13;
+  20   2          }
+  21   1      
+  22   1          KEY_MATRIX_PORT = 0xfb;
+  23   1          switch (KEY_MATRIX_PORT)
+  24   1          {
+  25   2              case 0x7b: return 2;
+  26   2              case 0xbb: return 6;
+  27   2              case 0xdb: return 10;
+  28   2              case 0xeb: return 14;
+  29   2          }
+  30   1      
+  31   1          KEY_MATRIX_PORT = 0xfd;
+  32   1          switch (KEY_MATRIX_PORT)
+  33   1          {
+  34   2              case 0x7d: return 3;
+  35   2              case 0xbd: return 7;
+  36   2              case 0xdd: return 11;
+  37   2              case 0xed: return 15;
+  38   2          }
+  39   1      
+  40   1          KEY_MATRIX_PORT = 0xfe;
+  41   1          switch (KEY_MATRIX_PORT)
+  42   1          {
+  43   2              case 0x7e: return 4;
+  44   2              case 0xbe: return 8;
+  45   2              case 0xde: return 12;
+  46   2              case 0xee: return 16;
+  47   2          }
+  48   1      
+  49   1          KEY_MATRIX_PORT = 0xff;
+  50   1          return MATRIX_KEY_NONE;
+  51   1      }
+  52          
+  53          unsigned char MatrixKey_Read(void)  //读取一次经过按下确认和松手检测的矩阵按键
+C51 COMPILER V9.60.7.0   MATRIXKEY                                                         08/15/2026 23:55:01 PAGE 2   
+
+  54          {
+  55   1          static unsigned char last_key = MATRIX_KEY_NONE;
+  56   1          static unsigned char key_ready = 1;
+  57   1          unsigned char key_value;
+  58   1      
+  59   1          key_value = MatrixKey_ScanRaw();
+  60   1          if (key_value == MATRIX_KEY_NONE)
+  61   1          {
+  62   2              last_key = MATRIX_KEY_NONE;
+  63   2              key_ready = 1;
+  64   2              return MATRIX_KEY_NONE;
+  65   2          }
+  66   1      
+  67   1          if (key_value == last_key)
+  68   1          {
+  69   2              if (key_ready)
+  70   2              {
+  71   3                  key_ready = 0;
+  72   3                  return key_value;
+  73   3              }
+  74   2          }
+  75   1          else
+  76   1          {
+  77   2              last_key = key_value;
+  78   2          }
+  79   1      
+  80   1          return MATRIX_KEY_NONE;
+  81   1      }
+  82          
+  83          unsigned char MatrixKey_RanksScan(void)  //使用行列逐列扫描方式读取矩阵按键，并等待按
+             -键松开
+  84          {
+  85   1          unsigned char key_value = MATRIX_KEY_NONE;
+  86   1      
+  87   1          KEY_MATRIX_PORT = 0xf7;
+  88   1          if (KEY_MATRIX_PORT != 0xf7)
+  89   1          {
+  90   2              delay_10us(1000);
+  91   2              switch (KEY_MATRIX_PORT)
+  92   2              {
+  93   3                  case 0x77: key_value = 1; break;
+  94   3                  case 0xb7: key_value = 5; break;
+  95   3                  case 0xd7: key_value = 9; break;
+  96   3                  case 0xe7: key_value = 13; break;
+  97   3              }
+  98   2          }
+  99   1          while (KEY_MATRIX_PORT != 0xf7);
+ 100   1      
+ 101   1          KEY_MATRIX_PORT = 0xfb;
+ 102   1          if (KEY_MATRIX_PORT != 0xfb)
+ 103   1          {
+ 104   2              delay_10us(1000);
+ 105   2              switch (KEY_MATRIX_PORT)
+ 106   2              {
+ 107   3                  case 0x7b: key_value = 2; break;
+ 108   3                  case 0xbb: key_value = 6; break;
+ 109   3                  case 0xdb: key_value = 10; break;
+ 110   3                  case 0xeb: key_value = 14; break;
+ 111   3              }
+ 112   2          }
+ 113   1          while (KEY_MATRIX_PORT != 0xfb);
+ 114   1      
+C51 COMPILER V9.60.7.0   MATRIXKEY                                                         08/15/2026 23:55:01 PAGE 3   
+
+ 115   1          KEY_MATRIX_PORT = 0xfd;
+ 116   1          if (KEY_MATRIX_PORT != 0xfd)
+ 117   1          {
+ 118   2              delay_10us(1000);
+ 119   2              switch (KEY_MATRIX_PORT)
+ 120   2              {
+ 121   3                  case 0x7d: key_value = 3; break;
+ 122   3                  case 0xbd: key_value = 7; break;
+ 123   3                  case 0xdd: key_value = 11; break;
+ 124   3                  case 0xed: key_value = 15; break;
+ 125   3              }
+ 126   2          }
+ 127   1          while (KEY_MATRIX_PORT != 0xfd);
+ 128   1      
+ 129   1          KEY_MATRIX_PORT = 0xfe;
+ 130   1          if (KEY_MATRIX_PORT != 0xfe)
+ 131   1          {
+ 132   2              delay_10us(1000);
+ 133   2              switch (KEY_MATRIX_PORT)
+ 134   2              {
+ 135   3                  case 0x7e: key_value = 4; break;
+ 136   3                  case 0xbe: key_value = 8; break;
+ 137   3                  case 0xde: key_value = 12; break;
+ 138   3                  case 0xee: key_value = 16; break;
+ 139   3              }
+ 140   2          }
+ 141   1          while (KEY_MATRIX_PORT != 0xfe);
+ 142   1      
+ 143   1          return key_value;
+ 144   1      }
+ 145          
+ 146          unsigned char MatrixKey_FlipScan(void)  //使用线翻转扫描方式读取矩阵按键
+ 147          {
+ 148   1          static unsigned char key_value = MATRIX_KEY_NONE;
+ 149   1      
+ 150   1          KEY_MATRIX_PORT = 0x0f;
+ 151   1          if (KEY_MATRIX_PORT != 0x0f)
+ 152   1          {
+ 153   2              delay_10us(1000);
+ 154   2              if (KEY_MATRIX_PORT != 0x0f)
+ 155   2              {
+ 156   3                  KEY_MATRIX_PORT = 0x0f;
+ 157   3                  switch (KEY_MATRIX_PORT)
+ 158   3                  {
+ 159   4                      case 0x07: key_value = 1; break;
+ 160   4                      case 0x0b: key_value = 2; break;
+ 161   4                      case 0x0d: key_value = 3; break;
+ 162   4                      case 0x0e: key_value = 4; break;
+ 163   4                  }
+ 164   3      
+ 165   3                  KEY_MATRIX_PORT = 0xf0;
+ 166   3                  switch (KEY_MATRIX_PORT)
+ 167   3                  {
+ 168   4                      case 0x70: key_value = key_value; break;
+ 169   4                      case 0xb0: key_value = key_value + 4; break;
+ 170   4                      case 0xd0: key_value = key_value + 8; break;
+ 171   4                      case 0xe0: key_value = key_value + 12; break;
+ 172   4                  }
+ 173   3                  while (KEY_MATRIX_PORT != 0xf0);
+ 174   3              }
+ 175   2          }
+ 176   1          else
+C51 COMPILER V9.60.7.0   MATRIXKEY                                                         08/15/2026 23:55:01 PAGE 4   
+
+ 177   1          {
+ 178   2              key_value = MATRIX_KEY_NONE;
+ 179   2          }
+ 180   1      
+ 181   1          return key_value;
+ 182   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    516    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

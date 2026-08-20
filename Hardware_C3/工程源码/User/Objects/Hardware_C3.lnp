@@ -1,0 +1,10 @@
+".\Objects\main.obj",
+".\Objects\Encoder.obj",
+".\Objects\Beep.obj",
+".\Objects\MatrixKey.obj",
+".\Objects\Motor.obj",
+".\Objects\OLED.obj",
+".\Objects\Seg.obj",
+".\Objects\Uart.obj" 
+TO ".\Objects\Hardware_C3" 
+PRINT(".\Listings\Hardware_C3.m51") RAMSIZE(256) 
