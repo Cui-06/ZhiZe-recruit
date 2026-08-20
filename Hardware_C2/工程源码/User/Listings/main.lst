@@ -1,0 +1,100 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              08/15/2026 12:26:42 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver) DEBUG OBJECTEXTEND PRI
+                    -NT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "reg52.h"
+   2          #include "Key.h"
+   3          #include "Led.h"
+   4          #include "Motor.h"
+   5          #include "Beep.h"
+   6          #include "Seg.h"
+   7          #include "OLED.h"
+   8          
+   9          static void Timer0Init(void)
+  10          {
+  11   1          TMOD &= 0xF0;
+  12   1          TMOD |= 0x01;
+  13   1          TH0 = 0xFF;
+  14   1          TL0 = 0x38;
+  15   1          TF0 = 0;
+  16   1          ET0 = 1;
+  17   1          EA = 1;
+  18   1          TR0 = 1;
+  19   1      }
+  20          
+  21          void Timer0Server(void) interrupt 1
+  22          {
+  23   1          TF0 = 0;
+  24   1          TH0 = 0xFF;
+  25   1          TL0 = 0x38;
+  26   1          Motor_Tick();
+  27   1          Beep_Tick();
+  28   1      }
+  29          
+  30          void main(void)
+  31          {
+  32   1          unsigned char key = 0;
+  33   1          unsigned char speed = MOTOR_SPEED_STOP;
+  34   1          unsigned char dir = MOTOR_DIR_FORWARD;
+  35   1      
+  36   1          // 初始状态：电机停止、蜂鸣器关闭、LED 熄灭、数码管熄灭、OLED 熄灭。 
+  37   1          Led_Init();
+  38   1          Seg_Init();
+  39   1          Motor_Init();
+  40   1          Beep_Init();
+  41   1          OLED_Init();
+  42   1          Motor_SetDir(dir);
+  43   1          Motor_SetSpeed(speed);
+  44   1          Timer0Init();
+  45   1      
+  46   1          while (1)
+  47   1          {
+  48   2              key = Key_Read(0);
+  49   2              if (key == KEY1_PRESS)  //KEY1 循环切换停止、低速、中速和高速
+  50   2              {
+  51   3                  speed++;
+  52   3                  if (speed > MOTOR_SPEED_HIGH)
+  53   3                  {
+  54   4                      speed = MOTOR_SPEED_STOP;
+C51 COMPILER V9.60.7.0   MAIN                                                              08/15/2026 12:26:42 PAGE 2   
+
+  55   4                  }
+  56   3                  Motor_SetSpeed(speed);
+  57   3                  // 高速时开启蜂鸣器和OLED滚动显示
+  58   3                  Beep_SetEnable(speed == MOTOR_SPEED_HIGH);
+  59   3                  OLED_SetScrollEnable(speed == MOTOR_SPEED_HIGH);
+  60   3              }
+  61   2              else if (key == KEY2_PRESS)  //KEY2 设置电机正转
+  62   2              {
+  63   3                  dir = MOTOR_DIR_FORWARD;  
+  64   3                  Motor_SetDir(dir);
+  65   3              }
+  66   2              else if (key == KEY3_PRESS)   //KEY3 设置电机反转
+  67   2              {
+  68   3                  dir = MOTOR_DIR_REVERSE;
+  69   3                  Motor_SetDir(dir);
+  70   3              }
+  71   2      
+  72   2              OLED_Proc();
+  73   2          }
+  74   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    214    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,9 @@
+".\Objects\main.obj",
+".\Objects\Beep.obj",
+".\Objects\Key.obj",
+".\Objects\Led.obj",
+".\Objects\Motor.obj",
+".\Objects\OLED.obj",
+".\Objects\Seg.obj" 
+TO ".\Objects\Hardware_C2" 
+PRINT(".\Listings\Hardware_C2.m51") RAMSIZE(256) 

@@ -1,0 +1,113 @@
+C51 COMPILER V9.60.7.0   SEG                                                               08/15/2026 12:26:42 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE SEG
+OBJECT MODULE PLACED IN .\Objects\Seg.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE ..\Driver\Seg.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver) DEBUG OBJECTE
+                    -XTEND PRINT(.\Listings\Seg.lst) TABS(2) OBJECT(.\Objects\Seg.obj)
+
+line level    source
+
+   1          #include "reg52.h"
+   2          #include "Seg.h"
+   3          
+   4          #define SMG_A_DP_PORT P0
+   5          
+   6          // 数码管段选使用 P0，位选使用 P2.2~P2.4。 
+   7          sbit LSA = P2^2;
+   8          sbit LSB = P2^3;
+   9          sbit LSC = P2^4;
+  10          
+  11          static unsigned char Seg_Buf[8] = {SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK,
+  12                                             SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK};
+  13          static unsigned char code Seg_Code[11] = {
+  14              0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07,0x7f, 0x6f,0x00};
+  15          
+  16          static void delay_10us(unsigned int ten_us) 
+  17          {
+  18   1          while (ten_us--);
+  19   1      }
+  20          
+  21          void Seg_Init(void)   // 清空数码管显示缓冲并关闭数码管。
+  22          {
+  23   1          unsigned char i;
+  24   1      
+  25   1          for (i = 0; i < 8; i++)
+  26   1          {
+  27   2              Seg_Buf[i] = SEG_BLANK;
+  28   2          }
+  29   1          LSC = 1;
+  30   1          LSB = 1;
+  31   1          LSA = 1;
+  32   1          SMG_A_DP_PORT = 0x00;
+  33   1      }
+  34          
+  35          void Seg_SetBuf(unsigned char pos, unsigned char dat)  //设置指定数码管位置的显示内容
+  36          {
+  37   1          if (pos >= 8)
+  38   1          {
+  39   2              return;
+  40   2          }
+  41   1          Seg_Buf[pos] = (dat <= SEG_BLANK) ? dat : SEG_BLANK;
+  42   1      }
+  43          
+  44          void Seg_SetAll(const unsigned char *buf)  //批量设置 8 位数码管的显示缓冲
+  45          {
+  46   1          unsigned char i;
+  47   1      
+  48   1          for (i = 0; i < 8; i++)
+  49   1          {
+  50   2              Seg_SetBuf(i, buf[i]);
+  51   2          }
+  52   1      }
+  53          
+  54          void Seg_Scan(unsigned char pos)  //选择某一位数码管并输出对应段码选择某一位数码管�
+C51 COMPILER V9.60.7.0   SEG                                                               08/15/2026 12:26:42 PAGE 2   
+
+             -��输出对应段码
+  55          {
+  56   1          if (pos >= 8)
+  57   1          {
+  58   2              return;
+  59   2          }
+  60   1      
+  61   1          switch (pos)
+  62   1          {
+  63   2              case 0: LSC = 1; LSB = 1; LSA = 1; break;
+  64   2              case 1: LSC = 1; LSB = 1; LSA = 0; break;
+  65   2              case 2: LSC = 1; LSB = 0; LSA = 1; break;
+  66   2              case 3: LSC = 1; LSB = 0; LSA = 0; break;
+  67   2              case 4: LSC = 0; LSB = 1; LSA = 1; break;
+  68   2              case 5: LSC = 0; LSB = 1; LSA = 0; break;
+  69   2              case 6: LSC = 0; LSB = 0; LSA = 1; break;
+  70   2              case 7: LSC = 0; LSB = 0; LSA = 0; break;
+  71   2          }
+  72   1      
+  73   1          SMG_A_DP_PORT = Seg_Code[Seg_Buf[pos]];
+  74   1      }
+  75          
+  76          void Seg_Display(void)  //快速循环扫描 8 位数码管，形成稳定显示
+  77          {
+  78   1          unsigned char i;
+  79   1      
+  80   1          for (i = 0; i < 8; i++)
+  81   1          {
+  82   2              Seg_Scan(i);
+  83   2              delay_10us(100);
+  84   2              SMG_A_DP_PORT = 0x00;
+  85   2          }
+  86   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    211    ----
+   CONSTANT SIZE    =     11    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
